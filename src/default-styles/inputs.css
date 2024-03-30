@@ -1,0 +1,35 @@
+/* separate labels from their input field */
+label {
+  margin-right: 5px;
+}
+
+/* structure input fields */
+button, select {
+  border: solid 2px #666666;
+  border-radius: 4px;
+}
+
+/* color input fields */
+input, button, select {
+  color: black;
+  min-width: 50px;
+}
+
+input[type=text] {
+  width: 100px;
+}
+
+input[readonly] {
+  color: #f7f7f7;
+  background-color: #666666;
+}
+
+/* color text in option fields */
+option {
+  color:#f1f1f1;
+  background-color:#1d2a35;
+}
+
+fieldset {
+  border: #666666 2px solid;
+}

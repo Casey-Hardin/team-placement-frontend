@@ -1,0 +1,29 @@
+/* breakout styles by region */
+@import "./default-styles/tables.css";
+@import "./default-styles/scrollbar.css";
+@import "./default-styles/inputs.css";
+
+/* text styles */
+* {
+  color: #f1f1f1;
+  font-family: sans-serif;
+}
+
+h1 {
+  margin: 10px auto 5px auto;
+}
+
+/* set window background color */
+body {
+  background-color: #1d2a35;
+}
+
+/* hr elements used to separate content */
+hr {
+  margin: 0px auto 15px 0px;
+  width: 97.5vw;
+}
+
+a {
+  text-decoration: none;
+}
