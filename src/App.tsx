@@ -1,15 +1,9 @@
-import './App.css'
+import Content from "components/Content";
 
-function App() {
+const App = () => {
   return (
-    <>
-      <div id="page-content">
-        <h1>Team Placement</h1>
-        <p>Import data from Excel or JSON</p>
-        <input type="file" id="myFile" name="filename" />
-      </div>
-    </>
-  )
-}
+    <Content />
+  );
+};
 
-export default App
+export default App;

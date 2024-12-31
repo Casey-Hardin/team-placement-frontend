@@ -21,9 +21,13 @@
   },
   "homepage": "https://github.com/Casey-Hardin/team-placement-frontend#readme",
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^6.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.22.3"
+    "vite-plugin-svgr": "^4.3.0",
+    "vite-tsconfig-paths": "^5.1.4"
   },
   "devDependencies": {
     "@types/react": "^18.2.73",
