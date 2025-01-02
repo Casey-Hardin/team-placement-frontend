@@ -18,6 +18,14 @@ const helpIconStyle = css`
   height: 30px;
 `;
 
+const resetStyle = css`
+  background-color:rgb(219, 197, 113);
+
+  &:hover {
+    background-color: rgb(143, 128, 70);
+  };
+`;
+
 const toolbarButtonStyle = css`
   margin: 10px;
   min-width: 150px;
@@ -34,12 +42,16 @@ const toolbarStyle = css`
 `;
 
 interface AppBarProps {
+  resetTeams: boolean
+  resetRooms: boolean
   onResetClick: () => void
   onRunTeamsClick: () => void
   onRunRoomsClick: () => void
 }
 
 const AppBar = ({
+  resetTeams,
+  resetRooms,
   onResetClick,
   onRunTeamsClick,
   onRunRoomsClick,
@@ -87,7 +99,7 @@ const AppBar = ({
         {/* run teams algorithm button */}
         <Button
           variant="contained"
-          css={toolbarButtonStyle}
+          css={resetTeams ? [toolbarButtonStyle, resetStyle] : toolbarButtonStyle}
           onClick={onRunTeamsClick}
         >
           Run Teams
@@ -96,7 +108,7 @@ const AppBar = ({
         {/* run rooms algorithm button */}
         <Button
           variant="contained"
-          css={toolbarButtonStyle}
+          css={resetRooms ? [toolbarButtonStyle, resetStyle] : toolbarButtonStyle}
           onClick={onRunRoomsClick}
         >
           Run Rooms

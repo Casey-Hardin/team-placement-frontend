@@ -144,14 +144,14 @@ function PeopleButtons(
         alert("Controls update was not successful!");
       }
     })();
-  }
+  };
 
   const handleExportObjectsClick = () => {
     /* Exports objects to an Excel workbook. */
     (async () => {
       await exportObjects("people", headCells, peopleTable);
     })();
-  }
+  };
 
   const handleImportFileClick = (files: FileList | null) => {
     /*
@@ -227,7 +227,7 @@ function PeopleButtons(
         return;
       }
     })();
-  }
+  };
 
   return (
     <Box css={buttonContainerStyle}>

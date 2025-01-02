@@ -1,12 +1,13 @@
 interface Room {
-  [key: string]: boolean | number | string | string[]
+  [key: string]: boolean | string
   index: string
   name: string
-  size: string
+  capacity: string
   selected: boolean
 }
 
 interface RoomTable extends Room {
+  occupants: string
   age: string
   collectiveNew: string
   collectiveNewish: string

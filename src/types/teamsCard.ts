@@ -1,5 +1,5 @@
 interface Team {
-  [key: string]: boolean | number | string | string[]
+  [key: string]: boolean | string | string[]
   index: string
   name: string
   selected: boolean

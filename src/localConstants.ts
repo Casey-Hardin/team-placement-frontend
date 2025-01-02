@@ -47,7 +47,7 @@ const DEFAULT_PERSON: Person = {
 const DEFAULT_ROOM: Room = {
   index: "",
   name: "",
-  size: "",
+  capacity: "",
   selected: false,
 }
 const DEFAULT_TEAM: Team = {

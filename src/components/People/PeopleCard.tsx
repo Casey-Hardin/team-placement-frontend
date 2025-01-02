@@ -11,6 +11,7 @@ import { Control } from "types/controlsCard";
 import { Nicknames } from "types/nicknamesCard";
 import { Person, PersonTable } from "types/peopleCard";
 import { Team } from "types/teamsCard";
+import { getPeopleNames } from "utils/getPeopleNames";
 
 // table columns
 const headCells: HeadCell<Person>[] = [
@@ -135,21 +136,8 @@ function PeopleCard(
     // clone person
     const personTable = person as PersonTable;
 
-    // convert preferred people indices to their full names
-    const names = person.preferredPeople.map(personIndex => {
-      // person must be found
-      const personPosition = people.map(person => person.index).indexOf(personIndex);
-      if (personPosition === -1) {
-        return;
-      }
-
-      // collect full name of person
-      const person = people[personPosition];
-      return `${person.firstName} ${person.lastName}`;
-    }).filter(name => name !== undefined);
-
-    // assign preferred people for each person
-    personTable.preferredPeopleDisplay = names;
+    // assign full names of preferred people for each person
+    personTable.preferredPeopleDisplay = getPeopleNames(people, person.preferredPeople);
     peopleTable.push(personTable);
   });
 

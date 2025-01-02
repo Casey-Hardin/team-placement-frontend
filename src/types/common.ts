@@ -27,6 +27,18 @@ interface InputField {
   unit?: string
 }
 
+interface Metrics {
+  size: string
+  age: string
+  collectiveNew: string
+  collectiveNewish: string
+  collectiveOldish: string
+  collectiveOld: string
+  male: string
+  female: string
+  firstTime: string
+}
+
 interface ObjectModel {
   index: string,
   selected: boolean,
@@ -58,6 +70,7 @@ export {
   Direction,
   type HeadCell,
   type InputField,
+  type Metrics,
   type ObjectOrderModel,
   type ObjectModel,
   Order,

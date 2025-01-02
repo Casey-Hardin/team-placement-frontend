@@ -49,6 +49,12 @@ const teamNameField: InputField = {
   validate: validateString,
 };
 
+const roomNameField: InputField = {
+  placeholder: "Mega Bed Villa",
+  helperText: VALIDATE_STRING_TEXT,
+  validate: validateString,
+};
+
 export {
   firstNameField,
   lastNameField,
@@ -57,4 +63,5 @@ export {
   collectiveField,
   preferredPeopleField,
   teamNameField,
+  roomNameField
 }

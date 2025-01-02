@@ -102,6 +102,11 @@ function PersonDialog({
       person.participant = BooleanEnum.yes;
     }
 
+    // only leaders may have a team defined without the algorithm
+    if (key === "leader" && value === BooleanEnum.no) {
+      person.team = "";
+    }
+
     // set the open person
     onPersonOpenChange(person);
   };
@@ -286,9 +291,12 @@ function PersonDialog({
             onChange={(e) => handlePersonPropertyChange("preferredPeopleRaw", e.target.value)}
           />
 
-          {/* preferred people combo box */}
+          {/* preferred people */}
           <FormControl variant="standard" sx={{ m: 1, width: 300 }} disabled={people.length === 0}>
+            {/* title */}
             <InputLabel id="preferred-people-label">Preferred People</InputLabel>
+
+            {/* combo box */}
             <Select
               labelId="preferred-people-label"
               multiple

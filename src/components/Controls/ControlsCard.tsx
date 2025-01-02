@@ -7,8 +7,9 @@ import ControlDialog from "components/Controls/ControlDialog";
 import ControlsButtons from "components/Controls/ControlsButtons";
 import ObjectTable from "components/ObjectTable";
 import { HeadCell } from "types/common";
-import { Control } from "types/controlsCard";
+import { Control, ControlTable } from "types/controlsCard";
 import { Person } from "types/peopleCard";
+import { getPeopleNames } from "utils/getPeopleNames";
 
 // table columns
 const headCells: HeadCell<Control>[] = [
@@ -25,20 +26,20 @@ const headCells: HeadCell<Control>[] = [
     label: "Last Name",
   },
   {
-    id: "teamInclude",
+    id: "teamIncludeDisplay",
     label: "Include on Team",
   },
   {
-    id: "teamExclude",
+    id: "teamExcludeDisplay",
     label: "Exclude from Team",
   },
   {
-    id: "roomInclude",
+    id: "roomIncludeDisplay",
     label: "Include in Room",
   },
 
   {
-    id: "roomExclude",
+    id: "roomExcludeDisplay",
     label: "Exclude from Room",
   },
 ];
@@ -53,62 +54,86 @@ const titleStyle = css`
   text-align: left;
 `;
 
+interface ControlsCardProps {
+  people: Person[]
+  controls: Control[]
+  onControlsChange: (newControls: Control[]) => void
+}
+
 function ControlsCard(
 {
   people,
   controls,
   onControlsChange,
-} : {
-  people: Person[]
-  controls: Control[]
-  onControlsChange: (newControls: Control[]) => void
-}) {
-  /* Displays a table with controls information. */
+} : ControlsCardProps) {
+  /*
+  Displays a table with controls information.
+
+  people
+    People defined by the user to sort into teams and rooms.
+  controls
+    Constraints defined by the user when surting people into teams and rooms.
+  onControlsChange
+    Function to change user controls in the interface.
+  */
   const [controlOpen, setControlOpen] = useState<Control | null>(null);
 
   const handleControlOpenChange = (newControl: Control | null) => {
+    /*
+    Changes a control in the dialogue menu.
+
+    newControl
+      New control to save to the control object in the dialogue menu.
+    */
     setControlOpen(newControl);
   };
 
-  const convertDisplay = (key: string, value: string | string[]) : string => {
-    if (!["teamInclude", "teamExclude", "roomInclude", "roomExclude"].includes(key)) {
-      if (Array.isArray(value)) {
-        return value.join(",");
-      } else {
-        return value;
-      }
+  // convert people to their table data
+  const controlsTable: ControlTable[] = [];
+  controls.forEach(control => {
+    // clone control
+    const controlTable = control as ControlTable;
+
+    // find the person for whom each control applies
+    const personFound = people.filter(person => controlOpen !== null && person.index === control.personIndex)[0];
+    if (personFound === undefined) {
+      return;
     }
+    controlTable.firstName = personFound.firstName;
+    controlTable.lastName = personFound.lastName;
 
-    const values: string[] = Array.isArray(value) ? value : value.split(",");
-    const names = values.map(personIndex => {
-      const personPosition = people.map(person => person.index).indexOf(personIndex);
-      if (personPosition === -1) {
-        return;
-      }
-
-      const person = people[personPosition];
-      return `${person.firstName} ${person.lastName}`;
-    }).filter(name => name !== undefined);
-    return names.join(",\n")
-  }
+    // convert people indices to their full names
+    // assign full names of people for each control
+    controlTable.teamIncludeDisplay = getPeopleNames(people, control.teamInclude);
+    controlTable.teamExcludeDisplay = getPeopleNames(people, control.teamExclude);
+    controlTable.roomIncludeDisplay = getPeopleNames(people, control.teamInclude);
+    controlTable.roomExcludeDisplay = getPeopleNames(people, control.teamExclude);
+    controlsTable.push(controlTable);
+  });
 
   return (
     <>
       <Card css={tableContainerStyle}>
         <CardContent>
+          {/* title */}
           <Typography variant="body1" css={titleStyle}>Controls</Typography>
-          <ObjectTable<Control>
+
+          {/* table */}
+          <ObjectTable<Control, ControlTable>
             objects={controls}
-            identityObjectKey="order"
             headCells={headCells}
-            convertDisplay={convertDisplay}
+            objectsDisplay={controlsTable}
+            initialSortKey="order"
             onObjectsChange={onControlsChange}
             onObjectOpenChange={handleControlOpenChange}
           />
+
+          {/* buttons */}
           <ControlsButtons
+            people={people}
             controls={controls}
             headCells={headCells}
-            convertDisplay={convertDisplay}
+            controlsTable={controlsTable}
             onControlsChange={onControlsChange}
             onControlOpenChange={handleControlOpenChange}
           />

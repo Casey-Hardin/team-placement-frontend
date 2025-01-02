@@ -6,9 +6,11 @@ import Typography from "@mui/material/Typography";
 import ObjectTable from "components/ObjectTable";
 import TeamsButtons from "components/Teams/TeamsButtons";
 import TeamDialog from "components/Teams/TeamDialog";
-import { HeadCell } from "types/common";
+import { BooleanEnum, HeadCell } from "types/common";
 import { Person } from "types/peopleCard";
-import { Team } from "types/teamsCard";
+import { Team, TeamTable } from "types/teamsCard";
+import { getPeopleNames } from "utils/getPeopleNames";
+import { getMetrics } from "utils/getMetrics";
 
 // table columns
 const headCells: HeadCell<Team>[] = [
@@ -68,84 +70,139 @@ const titleStyle = css`
   text-align: left;
 `;
 
+interface TeamsCardProps {
+  people: Person[]
+  teams: Team[]
+  onPeopleChange: (newPeople: Person[]) => void
+  onTeamsChange: (newTeams: Team[]) => void
+}
+
 function TeamsCard(
 {
   people,
   teams,
+  onPeopleChange,
   onTeamsChange,
-} : {
-  people: Person[]
-  teams: Team[]
-  onTeamsChange: (newTeams: Team[]) => void
-}) {
-  /* Displays a table with team information. */
+} : TeamsCardProps) {
+  /*
+  Displays a table with team information.
+
+  people
+    People defined by the user to sort into teams and rooms.
+  teams
+    Teams where people will be sorted into.
+  onPeopleChange
+    Function to change people in the interface.
+  onTeamsChange
+    Function to change teams in the interface.
+  */
   const [teamOpen, setTeamOpen] = useState<Team | null>(null);
+  const [leadersOpen, setLeadersOpen] = useState<string[]>([]);
 
   const handleTeamOpenChange = (newTeam: Team | null) => {
+    /*
+    Changes a team in the dialogue menu.
+
+    newTeam
+      New team to save to the team object in the dialogue menu.
+    */
     setTeamOpen(newTeam);
+
+    // collect leaders for the open team
+    const leaders = people.filter(person => (
+      newTeam !== null
+      && person.leader === BooleanEnum.yes
+      && person.team === newTeam.name
+    )).map(person => person.index);
+
+    // set leaders within the dialogue menu
+    setLeadersOpen(leaders);
   };
 
-  const convertDisplay = (key: string, value: string | string[]) : string => {
-    if (key !== "leaders") {
-      if (Array.isArray(value)) {
-        return value.join(",");
-      } else {
-        return value;
-      }
-    }
+  const handleLeadersOpenChange = (newLeaders: string[]) => {
+    /*
+    Changes leaders in the dialogue menu.
 
-    const values: string[] = Array.isArray(value) ? value : value.split(",");
-    const names = values.map(personIndex => {
-      const personPosition = people.map(person => person.index).indexOf(personIndex);
-      if (personPosition === -1) {
-        return;
-      }
+    newLeaders
+      New leaders for the team object in the dialogue menu.
+    */
+    setLeadersOpen(newLeaders);
+  };
 
-      const person = people[personPosition];
-      return `${person.firstName} ${person.lastName}`;
-    }).filter(name => name !== undefined);
-    return names.join(",\n")
-  }
+  // convert people to their table data
+  const teamsTable: TeamTable[] = [];
+  teams.forEach(team => {
+    // clone team
+    const teamTable = team as TeamTable;
 
-  /*
-  // convert nicknames to their table data
-  const nicknamesTable: NicknamesTable[] = [];
-  nicknames.forEach(nickname => {
-    const nicknameEntry = nickname as NicknamesTable;
-    nicknameEntry.selected = false;
-    nicknamesTable.push(nicknameEntry);
+    // people on the team
+    const members = people.filter(person => (
+      person.leader === BooleanEnum.yes
+      && person.team === team.name
+    ));
+
+    // assign team metrics
+    const metrics = getMetrics(members);
+    teamTable.size = metrics.size;
+    teamTable.age = metrics.age;
+    teamTable.collectiveNew = metrics.collectiveNew;
+    teamTable.collectiveNewish = metrics.collectiveNewish;
+    teamTable.collectiveOldish = metrics.collectiveOldish;
+    teamTable.collectiveOld = metrics.collectiveOld;
+    teamTable.male = metrics.male;
+    teamTable.female = metrics.female;
+    teamTable.firstTime = metrics.firstTime;
+
+    // assign full names of leaders for each team
+    teamTable.leaders = getPeopleNames(
+      people,
+      members.map(member => member.index)
+    );
+
+    // set table rows
+    teamsTable.push(teamTable);
   });
-  */
 
   return (
     <>
       <Card css={tableContainerStyle}>
         <CardContent>
+          {/* title */}
           <Typography variant="body1" css={titleStyle}>Team</Typography>
-          <ObjectTable<Team>
+
+          {/* table */}
+          <ObjectTable<Team, TeamTable>
             objects={teams}
-            identityObjectKey="name"
             headCells={headCells}
-            convertDisplay={convertDisplay}
+            objectsDisplay={teamsTable}
+            initialSortKey="name"
             onObjectsChange={onTeamsChange}
             onObjectOpenChange={handleTeamOpenChange}
           />
+
+          {/* buttons */}
           <TeamsButtons
+            people={people}
             teams={teams}
             headCells={headCells}
-            convertDisplay={convertDisplay}
+            teamsTable={teamsTable}
+            onPeopleChange={onPeopleChange}
             onTeamsChange={onTeamsChange}
             onTeamOpenChange={handleTeamOpenChange}
           />
         </CardContent>
       </Card>
 
+      {/* dialogue menu */}
      <TeamDialog
       people={people}
       teams={teams}
       teamOpen={teamOpen}
+      leadersOpen={leadersOpen}
+      onPeopleChange={onPeopleChange}
       onTeamsChange={onTeamsChange}
       onTeamOpenChange={handleTeamOpenChange}
+      onLeadersOpenChange={handleLeadersOpenChange}
      />
     </>
   );

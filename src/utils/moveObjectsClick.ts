@@ -109,8 +109,6 @@ async function handleMoveObjectsClick<T extends ObjectOrderModel>(
       alert("Movement was not successful!");
       return;
     }
-
-    alert(`${selectedObjects.length} items successfully moved in interface and workspace!`);
   })();
 }
 

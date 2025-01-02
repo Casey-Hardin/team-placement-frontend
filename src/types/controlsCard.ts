@@ -13,6 +13,10 @@ interface Control {
 interface ControlTable extends Control {
   firstName: string
   lastName: string
+  teamIncludeDisplay: string[]
+  teamExcludeDisplay: string[]
+  roomIncludeDisplay: string[]
+  roomExcludeDisplay: string[]
 }
 
 export {

@@ -31,6 +31,8 @@ function Content() {
   const [controls, setControls] = useState<Control[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [resetTeams, setResetTeams] = useState(false);
+  const [resetRooms, setResetRooms] = useState(false);
 
   useEffect(() => {
     /* Imports nicknames, people, controls, teams and rooms from the workspace. */
@@ -52,6 +54,8 @@ function Content() {
       Nicknames defined by the user.
     */
     setNicknames(newNicknames);
+    setResetTeams(true);
+    setResetRooms(true);
   };
 
   const handlePeopleChange = (newPeople: Person[]) : void => {
@@ -62,6 +66,8 @@ function Content() {
       People defined by the user.
     */
     setPeople(newPeople);
+    setResetTeams(true);
+    setResetRooms(true);
   };
 
   const handleControlsChange = (newControls: Control[]) : void => {
@@ -72,6 +78,8 @@ function Content() {
       Controls defined by the user.
     */
     setControls(newControls);
+    setResetTeams(true);
+    setResetRooms(true);
   };
 
   const handleTeamsChange = (newTeams: Team[]) : void => {
@@ -82,6 +90,7 @@ function Content() {
       Teams defined by the user.
     */
     setTeams(newTeams);
+    setResetTeams(true);
   };
 
   const handleRoomsChange = (newRooms: Room[]) : void => {
@@ -92,6 +101,7 @@ function Content() {
       Rooms defined by the user.
     */
     setRooms(newRooms);
+    setResetRooms(true);
   };
 
   const handleResetClick = () => {
@@ -156,6 +166,7 @@ function Content() {
 
       // save updated people to the interface
       setPeople(newPeople);
+      setResetTeams(false);
     })();
   }
 
@@ -177,6 +188,7 @@ function Content() {
 
       // save updated people to the interface
       setPeople(newPeople);
+      setResetRooms(false);
     })();
   }
 
@@ -184,6 +196,8 @@ function Content() {
     <>
       {/* application title */}
       <AppBar
+        resetTeams={resetTeams}
+        resetRooms={resetRooms}
         onResetClick={handleResetClick}
         onRunTeamsClick={handleRunTeamsClick}
         onRunRoomsClick={handleRunRoomsClick}
@@ -223,12 +237,15 @@ function Content() {
             <TeamsCard
               people={people}
               teams={teams}
+              onPeopleChange={handlePeopleChange}
               onTeamsChange={handleTeamsChange}
             />
 
             {/* rooms tile */}
             <RoomsCard
+              people={people}
               rooms={rooms}
+              onPeopleChange={handlePeopleChange}
               onRoomsChange={handleRoomsChange}
             />
           </Box>

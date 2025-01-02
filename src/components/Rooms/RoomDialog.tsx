@@ -8,30 +8,43 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import { Room } from "types/roomsCard";
 import { commitObjects } from "utils/commitObjects";
-import { sizeField } from "utils/roomFields";
+import { capacityField } from "utils/roomFields";
 
 const dialogStyle = css`
   padding: 20px;
 `;
+
+interface RoomDialogProps {
+  rooms: Room[]
+  roomOpen: Room | null
+  onRoomsChange: (newRooms: Room[]) => void
+  onRoomOpenChange: (room: Room | null) => void
+}
 
 function RoomDialog({
   rooms,
   roomOpen,
   onRoomsChange,
   onRoomOpenChange,
-} : {
-  rooms: Room[]
-  roomOpen: Room | null
-  onRoomsChange: (newRooms: Room[]) => void
-  onRoomOpenChange: (room: Room | null) => void
-}) {
-  /* Displays a dialog for room information. */
+} : RoomDialogProps) {
+  /*
+  Displays a dialog for teams information.
+
+  rooms
+    Rooms defined by the user for housing people.
+  roomOpen
+    Room entry open in the dialogue menu.
+  onRoomsChange
+    Function to change rooms in the interface.
+  onRoomOpenChange
+    Function to change the open room in the dialogue menu.
+  */
   const handleRoomClose = () => {
     /* Closes the room dialogue window. */
     onRoomOpenChange(null);
   };
 
-  const handleRoomPropertyChange = (key: keyof Room, value: boolean | null | string | string[]) => {
+  const handleRoomPropertyChange = (key: keyof Room, value: boolean | null | string) => {
     /*
     Edits the value of an attribute for an open room.
 
@@ -45,6 +58,7 @@ function RoomDialog({
       return;
     }
 
+    // value cannot be null
     if (value === null) {
       value = "";
     }
@@ -63,30 +77,41 @@ function RoomDialog({
         return;
       }
 
-      // create a new room or swap the changed room with its existing entry
+      // find the index of the room open in the dialogue menu
       const newRooms = [...rooms];
       const roomIndex = newRooms.map(room => room.index).indexOf(roomOpen.index);
+
+      // create a new room or swap the changed room with its existing entry
       if (roomIndex === -1) {
-        newRooms.push(structuredClone(roomOpen));
+        // find the index of the name of the room open in the dialogue menu
+        const nameIndex = newRooms.map(room => room.name).indexOf(roomOpen.name);
+
+        if (nameIndex === -1) {
+          // add a new room
+          newRooms.push(structuredClone(roomOpen));
+        } else {
+          // replace existing room
+          newRooms.splice(roomIndex, 1);
+          newRooms.push(structuredClone(roomOpen));
+        }
       } else {
+        // modify an existing room
         newRooms.splice(roomIndex, 1);
         newRooms.push(structuredClone(roomOpen));
       }
 
       // inform the backend an object is saved
-      (async () => {
-        const success = commitObjects(newRooms, "get-rooms", "save-rooms", onRoomsChange);
-        if (!success) {
-          alert("Saving was not successful!");
-          return;
-        }
+      const success = commitObjects(newRooms, "get-rooms", "save-rooms", onRoomsChange);
+      if (!success) {
+        alert("Saving rooms was not successful!");
+        return;
+      }
 
-        alert(`Room ${roomOpen.name} successfully saved to interface and workspace!`);
-      })();
+      alert(`Room ${roomOpen.name} successfully saved to interface and workspace!`);
+
+      // close the dialogue window
+      handleRoomClose();
     })();
-
-    // close the dialogue window
-    handleRoomClose();
   };
 
   return (
@@ -101,9 +126,11 @@ function RoomDialog({
         },
       }}
     >
+      {/* title */}
       <DialogTitle>Enter Room Information</DialogTitle>
       <DialogContent css={dialogStyle}>
         <Stack spacing={4}>
+          {/* name */}
           <TextField
             required
             placeholder="Amazingly Awesome Room Name"
@@ -112,19 +139,23 @@ function RoomDialog({
             variant="standard"
             onChange={(e) => handleRoomPropertyChange("name", e.target.value)}
           />
+
+          {/* capacity */}
           <TextField
             required
-            placeholder={sizeField.placeholder}
-            error={roomOpen === null ? false : !sizeField.validate(roomOpen.size)}
-            label="Size"
+            placeholder={capacityField.placeholder}
+            error={roomOpen === null ? false : !capacityField.validate(roomOpen.capacity)}
+            label="Capacity"
             type="number"
-            value={roomOpen === null ? "" : roomOpen.size}
+            value={roomOpen === null ? "" : roomOpen.capacity}
             variant="standard"
-            onChange={(e) => handleRoomPropertyChange("size", e.target.value)}
-            helperText={(roomOpen !== null && !sizeField.validate(roomOpen.size)) && sizeField.helperText}
+            onChange={(e) => handleRoomPropertyChange("capacity", e.target.value)}
+            helperText={(roomOpen !== null && !capacityField.validate(roomOpen.capacity)) && capacityField.helperText}
           />
         </Stack>
       </DialogContent>
+
+      {/* form controls */}
       <DialogActions>
         <Button onClick={handleRoomClose}>Cancel</Button>
         <Button type="submit">Save</Button>

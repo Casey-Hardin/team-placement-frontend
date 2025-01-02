@@ -10,6 +10,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
+import { BooleanEnum } from "types/common";
 import { Person } from "types/peopleCard";
 import { Team } from "types/teamsCard";
 import { commitObjects } from "utils/commitObjects";
@@ -18,20 +19,47 @@ const dialogStyle = css`
   padding: 20px;
 `;
 
+interface TeamDialogProps {
+  people: Person[]
+  teams: Team[]
+  teamOpen: Team | null
+  leadersOpen: string[]
+  onPeopleChange: (newPeople: Person[]) => void
+  onTeamsChange: (newTeams: Team[]) => void
+  onTeamOpenChange: (team: Team | null) => void
+  onLeadersOpenChange: (newLeaders: string[]) => void
+}
+
 function TeamDialog({
   people,
   teams,
   teamOpen,
+  leadersOpen,
+  onPeopleChange,
   onTeamsChange,
   onTeamOpenChange,
-} : {
-  people: Person[]
-  teams: Team[]
-  teamOpen: Team | null
-  onTeamsChange: (newTeams: Team[]) => void
-  onTeamOpenChange: (team: Team | null) => void
-}) {
-  /* Displays a dialog for team information. */
+  onLeadersOpenChange,
+} : TeamDialogProps) {
+  /*
+  Displays a dialog for teams information.
+
+  people
+    People defined by the user to sort into teams and rooms.
+  teams
+    Teams defined by the user for sorting people.
+  teamOpen
+    Team entry open in the dialogue menu.
+  leadersOpen
+    Leaders open in the dialogue menu.
+  onPeopleChange
+    Function to change people in the interface.
+  onTeamsChange
+    Function to change teams in the interface.
+  onTeamOpenChange
+    Function to change the open team in the dialogue menu.
+  onLeadersOpenChange
+    Function to change the open leaders in the dialogue menu.
+  */
   const handleTeamClose = () => {
     /* Closes the team dialogue window. */
     onTeamOpenChange(null);
@@ -51,6 +79,7 @@ function TeamDialog({
       return;
     }
 
+    // value cannot be null
     if (value === null) {
       value = "";
     }
@@ -69,33 +98,73 @@ function TeamDialog({
         return;
       }
 
-      // create a new team or swap the changed team with its existing entry
+      // find the index of the team open in the dialogue menu
       const newTeams = [...teams];
       const teamIndex = newTeams.map(team => team.index).indexOf(teamOpen.index);
+
+      // create a new team or swap the changed team with its existing entry
       if (teamIndex === -1) {
-        newTeams.push(structuredClone(teamOpen));
+        // find the index of the name of the team open in the dialogue menu
+        const nameIndex = newTeams.map(team => team.name).indexOf(teamOpen.name);
+
+        // add a new team if one does not already exist by the same name
+        if (nameIndex === -1) {
+          newTeams.push(structuredClone(teamOpen));
+        }
       } else {
+        // modify an existing team
         newTeams.splice(teamIndex, 1);
         newTeams.push(structuredClone(teamOpen));
       }
 
       // inform the backend an object is saved
-      (async () => {
-        const success = commitObjects(newTeams, "get-teams", "save-teams", onTeamsChange);
-        if (!success) {
-          alert("Saving was not successful!");
-          return;
+      const success_teams = commitObjects(newTeams, "get-teams", "save-teams", onTeamsChange);
+      if (!success_teams) {
+        alert("Saving teams was not successful!");
+        return;
+      }
+
+      // set leaders of teams
+      const newPeople = [...people];
+      newPeople.forEach(person => {
+        // assign new team leaders
+        if (leadersOpen.includes(person.index)) {
+          person.leader = BooleanEnum.yes;
+          person.team = teamOpen.name;
         }
 
-        alert(`Team ${teamOpen.name} successfully saved to interface and workspace!`);
-      })();
-    })();
+        // assign demotions
+        if (person.team === teamOpen.name && !leadersOpen.includes(person.index)) {
+          person.leader = BooleanEnum.no;
+          person.team = "";
+        }
+      });
 
-    // close the dialogue window
-    handleTeamClose();
+      // inform the backend an object is saved
+      const success_people = commitObjects(newPeople, "get-people", "save-people", onPeopleChange);
+      if (!success_people) {
+        alert("Saving people was not successful!");
+        return;
+      }
+
+      alert(`Team ${teamOpen.name} successfully saved to interface and workspace!`);
+
+      // close the dialogue window
+      handleTeamClose();
+    })();
   };
 
-  const peopleMenuItems = people.map(
+  // people options
+  // must be a participant
+  // must not be a leader of another team
+  const leaderMenuItems = people.filter(person => (
+    person.participant === BooleanEnum.yes
+    && (
+      person.leader === BooleanEnum.no
+      || teamOpen === null
+      || person.team === teamOpen.name
+    )
+  )).map(
     (person, index) => {
     return <MenuItem key={index} value={person.index}>{`${person.firstName} ${person.lastName}`}</MenuItem>
   });
@@ -112,9 +181,11 @@ function TeamDialog({
         },
       }}
     >
+      {/* title */}
       <DialogTitle>Enter Team Information</DialogTitle>
       <DialogContent css={dialogStyle}>
         <Stack spacing={4}>
+          {/* name */}
           <TextField
             required
             placeholder="Super Awesome Team Name"
@@ -123,20 +194,26 @@ function TeamDialog({
             variant="standard"
             onChange={(e) => handleTeamPropertyChange("name", e.target.value)}
           />
-          <FormControl variant="standard" sx={{ m: 1, width: 300 }} disabled={people.length === 0}>
+
+          {/* leaders */}
+          <FormControl variant="standard" sx={{ m: 1, width: 300 }} disabled={leaderMenuItems.length === 0}>
+            {/* title */}
             <InputLabel id="leaders-label">Team Leaders</InputLabel>
+
+            {/* combo box */}
             <Select
-              disabled={people.length === 0}
               labelId="leaders-label"
               multiple
-              value={teamOpen === null ? [""] : teamOpen.leaders}
-              onChange={(e) => handleTeamPropertyChange("leaders", e.target.value)}
+              value={teamOpen === null ? [""] : leadersOpen}
+              onChange={(e) => onLeadersOpenChange(Array.isArray(e.target.value) ? e.target.value : [e.target.value])}
             >
-              {peopleMenuItems}
+              {leaderMenuItems}
             </Select>
           </FormControl>
         </Stack>
       </DialogContent>
+
+      {/* form controls */}
       <DialogActions>
         <Button onClick={handleTeamClose}>Cancel</Button>
         <Button type="submit">Save</Button>
