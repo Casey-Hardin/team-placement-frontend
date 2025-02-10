@@ -16,6 +16,7 @@ import TextField from "@mui/material/TextField";
 import { findPreferredPeople } from "adaptors/find_preferred_people";
 import { DEFAULT_TEAM } from "localConstants";
 import { BooleanEnum } from "types/common";
+import { Control } from "types/controlsCard";
 import { Nicknames } from "types/nicknamesCard";
 import { Collective, Gender, Person } from "types/peopleCard";
 import { Team } from "types/teamsCard";
@@ -29,9 +30,11 @@ const dialogStyle = css`
 interface PersonDialogProps {
   nicknames: Nicknames[]
   people: Person[]
+  controls: Control[]
   personOpen: Person | null
   teams: Team[]
   onPeopleChange: (newPeople: Person[]) => void
+  onControlsChange: (newControls: Control[]) => void
   onTeamsChange: (newTeams: Team[]) => void
   onPersonOpenChange: (person: Person | null) => void
 }
@@ -39,9 +42,11 @@ interface PersonDialogProps {
 function PersonDialog({
   nicknames,
   people,
+  controls,
   teams,
   personOpen,
   onPeopleChange,
+  onControlsChange,
   onTeamsChange,
   onPersonOpenChange,
 } : PersonDialogProps) {
@@ -50,6 +55,8 @@ function PersonDialog({
 
   nicknames
     Current nicknames defined globally for deciphering people preferences.
+  controls
+    Constraints defined by the user when surting people into teams and rooms.
   people
     People defined by the user to sort into teams and rooms.
   teams
@@ -58,6 +65,8 @@ function PersonDialog({
     Person entry open in the dialogue menu.
   onPeopleChange
     Function to change people in the interface.
+  onControlsChange
+    Function to change user controls in the interface.
   onTeamsChange
     Function to change teams in the interface.
   onPersonOpenChange
@@ -149,6 +158,44 @@ function PersonDialog({
       onPeopleChange(newPeople);
 
       if (personOpen.leader === BooleanEnum.yes) {
+        // change controls to reflect leader status
+        let newControls = [...controls];
+        newControls.forEach(control => {
+          const controlPerson = newPeople.filter(person => person.index === control.personIndex)[0];
+          const leader = controlPerson.leader === BooleanEnum.yes;
+
+          control.teamInclude = control.teamInclude.filter(personIndex => {
+            const teamPerson = newPeople.filter(person => person.index === personIndex)[0];
+            return !leader || teamPerson.leader !== BooleanEnum.yes;
+          });
+          control.teamExclude = control.teamExclude.filter(personIndex => {
+            const teamPerson = newPeople.filter(person => person.index === personIndex)[0];
+            return !leader || teamPerson.leader !== BooleanEnum.yes;
+          });
+        });
+
+        // remove controls without any people included or excluded after removing selected people
+        newControls = newControls.filter(control =>
+          control.teamInclude.length !== 0
+          || control.teamExclude.length !== 0
+          || control.roomInclude.length !== 0
+          || control.roomExclude.length !== 0
+        );
+
+        // reset order for all controls remaining in the table
+        newControls.forEach((control, index) => control.order = index + 1);
+
+        // inform the backend objects were updated
+        const success_controls = await commitObjects(
+          newControls,
+          "get-controls",
+          "save-controls",
+          onControlsChange,
+        );
+        if (!success_controls) {
+          alert("Controls update was not successful!");
+        }
+
         // find the index of the team for the person open in the dialogue menu
         const newTeams = [...teams];
         const teamIndex = newTeams.map(team => team.name).indexOf(personOpen.team);

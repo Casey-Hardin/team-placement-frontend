@@ -11,6 +11,7 @@ import Select from "@mui/material/Select";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import { BooleanEnum } from "types/common";
+import { Control } from "types/controlsCard";
 import { Person } from "types/peopleCard";
 import { Team } from "types/teamsCard";
 import { commitObjects } from "utils/commitObjects";
@@ -21,10 +22,12 @@ const dialogStyle = css`
 
 interface TeamDialogProps {
   people: Person[]
+  controls: Control[]
   teams: Team[]
   teamOpen: Team | null
   leadersOpen: string[]
   onPeopleChange: (newPeople: Person[]) => void
+  onControlsChange: (newControls: Control[]) => void
   onTeamsChange: (newTeams: Team[]) => void
   onTeamOpenChange: (team: Team | null) => void
   onLeadersOpenChange: (newLeaders: string[]) => void
@@ -32,10 +35,12 @@ interface TeamDialogProps {
 
 function TeamDialog({
   people,
+  controls,
   teams,
   teamOpen,
   leadersOpen,
   onPeopleChange,
+  onControlsChange,
   onTeamsChange,
   onTeamOpenChange,
   onLeadersOpenChange,
@@ -45,6 +50,8 @@ function TeamDialog({
 
   people
     People defined by the user to sort into teams and rooms.
+  controls
+    Constraints defined by the user when surting people into teams and rooms.
   teams
     Teams defined by the user for sorting people.
   teamOpen
@@ -53,6 +60,8 @@ function TeamDialog({
     Leaders open in the dialogue menu.
   onPeopleChange
     Function to change people in the interface.
+  onControlsChange
+    Function to change user controls in the interface.
   onTeamsChange
     Function to change teams in the interface.
   onTeamOpenChange
@@ -145,6 +154,44 @@ function TeamDialog({
       if (!success_people) {
         alert("Saving people was not successful!");
         return;
+      }
+
+      // change controls to reflect leader status
+      let newControls = [...controls];
+      newControls.forEach(control => {
+        const personOpen = newPeople.filter(person => person.index === control.personIndex)[0];
+        const leader = personOpen.leader === BooleanEnum.yes;
+
+        control.teamInclude = control.teamInclude.filter(personIndex => {
+          const teamPerson = newPeople.filter(person => person.index === personIndex)[0];
+          return !leader || teamPerson.leader !== BooleanEnum.yes;
+        });
+        control.teamExclude = control.teamExclude.filter(personIndex => {
+          const teamPerson = newPeople.filter(person => person.index === personIndex)[0];
+          return !leader || teamPerson.leader !== BooleanEnum.yes;
+        });
+      });
+
+      // remove controls without any people included or excluded after removing selected people
+      newControls = newControls.filter(control =>
+        control.teamInclude.length !== 0
+        || control.teamExclude.length !== 0
+        || control.roomInclude.length !== 0
+        || control.roomExclude.length !== 0
+      );
+
+      // reset order for all controls remaining in the table
+      newControls.forEach((control, index) => control.order = index + 1);
+
+      // inform the backend objects were updated
+      const success_controls = await commitObjects(
+        newControls,
+        "get-controls",
+        "save-controls",
+        onControlsChange,
+      );
+      if (!success_controls) {
+        alert("Controls update was not successful!");
       }
 
       alert(`Team ${teamOpen.name} successfully saved to interface and workspace!`);

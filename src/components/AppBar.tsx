@@ -86,7 +86,7 @@ const AppBar = ({
     if (version === "") {
       getVersion();
     }
-  }, [version])
+  }, [version]);
 
   return (
     <Bar>
@@ -126,7 +126,7 @@ const AppBar = ({
         {/* help icon */}
         <a href={`https://${HELP_URL}`} target="_blank">
             <Typography color={HELP_ICON_COLOR}>
-            <HelpIcon css={helpIconStyle} fill="currentColor" />
+              <HelpIcon css={helpIconStyle} fill="currentColor" />
             </Typography>
         </a>
       </Toolbar>

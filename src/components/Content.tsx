@@ -24,6 +24,10 @@ const boxStyle = css`
   text-align: center;
 `;
 
+const cardStyle = css`
+  height: fit-content;
+`;
+
 function Content() {
   /* Defines page content. */
   const [nicknames, setNicknames] = useState<Nicknames[]>([]);
@@ -204,7 +208,7 @@ function Content() {
       />
 
       {/* page content */}
-      <Card css={css`height: fit-content;`}>
+      <Card css={cardStyle}>
         <CardContent>
           <Box css={boxStyle}>
             {/* nicknames tile */}
@@ -236,8 +240,10 @@ function Content() {
             {/* teams tile */}
             <TeamsCard
               people={people}
+              controls={controls}
               teams={teams}
               onPeopleChange={handlePeopleChange}
+              onControlsChange={handleControlsChange}
               onTeamsChange={handleTeamsChange}
             />
 

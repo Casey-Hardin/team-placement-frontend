@@ -178,10 +178,12 @@ function PeopleCard(
       {/* dialogue menu */}
       <PersonDialog
         nicknames={nicknames}
+        controls={controls}
         people={people}
         teams={teams}
         personOpen={personOpen}
         onPeopleChange={onPeopleChange}
+        onControlsChange={onControlsChange}
         onTeamsChange={onTeamsChange}
         onPersonOpenChange={handlePersonOpenChange}
       />

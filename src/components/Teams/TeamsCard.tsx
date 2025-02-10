@@ -11,6 +11,7 @@ import { Person } from "types/peopleCard";
 import { Team, TeamTable } from "types/teamsCard";
 import { getPeopleNames } from "utils/getPeopleNames";
 import { getMetrics } from "utils/getMetrics";
+import { Control } from "types/controlsCard";
 
 // table columns
 const headCells: HeadCell<Team>[] = [
@@ -72,16 +73,20 @@ const titleStyle = css`
 
 interface TeamsCardProps {
   people: Person[]
+  controls: Control[]
   teams: Team[]
   onPeopleChange: (newPeople: Person[]) => void
+  onControlsChange: (newControls: Control[]) => void
   onTeamsChange: (newTeams: Team[]) => void
 }
 
 function TeamsCard(
 {
   people,
+  controls,
   teams,
   onPeopleChange,
+  onControlsChange,
   onTeamsChange,
 } : TeamsCardProps) {
   /*
@@ -89,10 +94,14 @@ function TeamsCard(
 
   people
     People defined by the user to sort into teams and rooms.
+  controls
+    Constraints defined by the user when surting people into teams and rooms.
   teams
     Teams where people will be sorted into.
   onPeopleChange
     Function to change people in the interface.
+  onControlsChange
+    Function to change user controls in the interface.
   onTeamsChange
     Function to change teams in the interface.
   */
@@ -196,10 +205,12 @@ function TeamsCard(
       {/* dialogue menu */}
      <TeamDialog
       people={people}
+      controls={controls}
       teams={teams}
       teamOpen={teamOpen}
       leadersOpen={leadersOpen}
       onPeopleChange={onPeopleChange}
+      onControlsChange={onControlsChange}
       onTeamsChange={onTeamsChange}
       onTeamOpenChange={handleTeamOpenChange}
       onLeadersOpenChange={handleLeadersOpenChange}

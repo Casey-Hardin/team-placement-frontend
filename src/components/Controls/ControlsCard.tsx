@@ -92,10 +92,10 @@ function ControlsCard(
   const controlsTable: ControlTable[] = [];
   controls.forEach(control => {
     // clone control
-    const controlTable = control as ControlTable;
+    const controlTable = structuredClone(control) as ControlTable;
 
     // find the person for whom each control applies
-    const personFound = people.filter(person => controlOpen !== null && person.index === control.personIndex)[0];
+    const personFound = people.filter(person => person.index === control.personIndex)[0];
     if (personFound === undefined) {
       return;
     }
@@ -106,8 +106,8 @@ function ControlsCard(
     // assign full names of people for each control
     controlTable.teamIncludeDisplay = getPeopleNames(people, control.teamInclude);
     controlTable.teamExcludeDisplay = getPeopleNames(people, control.teamExclude);
-    controlTable.roomIncludeDisplay = getPeopleNames(people, control.teamInclude);
-    controlTable.roomExcludeDisplay = getPeopleNames(people, control.teamExclude);
+    controlTable.roomIncludeDisplay = getPeopleNames(people, control.roomInclude);
+    controlTable.roomExcludeDisplay = getPeopleNames(people, control.roomExclude);
     controlsTable.push(controlTable);
   });
 
