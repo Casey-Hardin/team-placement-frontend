@@ -23,6 +23,7 @@ const SHOW_ALL = "Show All";
 
 const bodyRowStyle = css`
   cursor: pointer;
+  white-space: nowrap;
 
   &:hover td {
     background-color: rgb(245, 245, 245);
@@ -52,7 +53,7 @@ const firstColumnStyle = css`
 `;
 
 const headRowStyle = css`
-  background-color: rgb(245, 245, 245);
+  background-color: rgb(255, 255, 255);
 `;
 
 const headStickyCellStyle = css`
@@ -398,7 +399,9 @@ function ObjectTable<T1 extends ObjectModel, T2 extends T1>({
     const allOptions = objectsTable.map(object => {
       return String(object[columnName]);
     });
-    const options = [...new Set(allOptions)].concat([SHOW_ALL]);
+    let options = [...new Set(allOptions)];
+    options.sort();
+    options = [SHOW_ALL, ...options];
 
     // create menu items for each option
     const filterMenuItems = options.map((option, optionIndex) => {
@@ -406,7 +409,8 @@ function ObjectTable<T1 extends ObjectModel, T2 extends T1>({
     });
 
     // title for the filter combo box
-    const title = String(columnName).charAt(0).toUpperCase() + String(columnName).slice(1).toLowerCase();
+    let title = String(columnName).replace(/([A-Z])/g, ' $1').trim();
+    title = title.charAt(0).toUpperCase() + title.slice(1);
 
     return (
       <FormControl key={index} variant="standard" sx={{ m: 1, width: 200 }} disabled={objectsTable.length === 0}>
@@ -419,6 +423,7 @@ function ObjectTable<T1 extends ObjectModel, T2 extends T1>({
           multiple
           value={filterValues[columnName]}
           onChange={(e) => handleFilterPropertyChange(columnName, e.target.value)}
+          MenuProps={{ PaperProps: { sx: { maxHeight: 300 } } }}
         >
           {filterMenuItems}
         </Select>

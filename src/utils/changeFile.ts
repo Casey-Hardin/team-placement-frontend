@@ -42,11 +42,15 @@ async function handleChangeFile<T>(
   }
 
   // read file
-  const [data, success] = await sendFile<T>(endpoint, file);
+  const [data, message, success] = await sendFile<T>(endpoint, file);
   if (!success || data === null) {
     const message = `File ${file.name} could not be read!`;
     alert(message);
     return [];
+  }
+  if (message != "") {
+    alert(message);
+    return data;
   }
 
   // return file contents

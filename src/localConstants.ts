@@ -1,7 +1,7 @@
 import { BooleanEnum } from "types/common";
 import { Control } from "types/controlsCard";
 import { Nicknames } from "types/nicknamesCard";
-import { Collective, Gender, Person } from "types/peopleCard";
+import { Collective, Gender, Person, TeamPlacementStep } from "types/peopleCard";
 import { Room } from "types/roomsCard";
 import { Team } from "types/teamsCard";
 
@@ -40,6 +40,7 @@ const DEFAULT_PERSON: Person = {
   preferredPeople: [],
   leader: BooleanEnum.no,
   team: "",
+  teamPlacementStep: TeamPlacementStep.unassigned,
   room: "",
   participant: BooleanEnum.yes,
   selected: false,

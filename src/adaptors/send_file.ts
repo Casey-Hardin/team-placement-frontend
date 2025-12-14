@@ -1,6 +1,6 @@
 import { BACKEND_ADDRESS } from "localConstants";
 
-async function sendFile<T>(endpoint: string, file: File) : Promise<[T[] | null, boolean]> {
+async function sendFile<T>(endpoint: string, file: File) : Promise<[T[] | null, string, boolean]> {
   /*
   Sends file object to the workspace.
 
@@ -11,6 +11,8 @@ async function sendFile<T>(endpoint: string, file: File) : Promise<[T[] | null, 
 
   T[] | null
     Data read from the file and assigned on the workspace.
+  string
+    Error message if the file did not save successfully on the workspace.
   boolean
     True if the file saved successfully on the workspace otherwise False.
   */
@@ -29,13 +31,12 @@ async function sendFile<T>(endpoint: string, file: File) : Promise<[T[] | null, 
   if (!response.ok) {
     const details = await response.json();
     console.log(details.detail.message);
-    alert(details.detail.message);
-    return [null, response.ok]
+    return [null, details.detail.message, response.ok]
   }
 
   // return objects and success status
-  const result = await response.json();
-  return [result, response.ok];
+  const [people, message] = await response.json();
+  return [people, message, response.ok];
 }
 
 export { sendFile };

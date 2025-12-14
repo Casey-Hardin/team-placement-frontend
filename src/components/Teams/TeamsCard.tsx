@@ -146,8 +146,10 @@ function TeamsCard(
 
     // people on the team
     const members = people.filter(person => (
+      person.team === team.name
+    ));
+    const leaders = members.filter(person => (
       person.leader === BooleanEnum.yes
-      && person.team === team.name
     ));
 
     // assign team metrics
@@ -165,7 +167,7 @@ function TeamsCard(
     // assign full names of leaders for each team
     teamTable.leaders = getPeopleNames(
       people,
-      members.map(member => member.index)
+      leaders.map(leader => leader.index)
     );
 
     // set table rows

@@ -61,6 +61,10 @@ const headCells: HeadCell<Person>[] = [
     label: "Team Name",
   },
   {
+    id: "teamPlacementStep",
+    label: "Team Step Assigned",
+  },
+  {
     id: "room",
     label: "Room Name",
   },
@@ -154,7 +158,7 @@ function PeopleCard(
             headCells={headCells}
             objectsDisplay={peopleTable}
             initialSortKey="order"
-            filters={["leader", "team", "room", "participant"]}
+            filters={["firstName", "lastName", "leader", "team", "room", "participant"]}
             onObjectsChange={onPeopleChange}
             onObjectOpenChange={handlePersonOpenChange}
           />

@@ -283,7 +283,7 @@ function PeopleButtons(
         Move Down
       </Button>
 
-      {/* export button */}
+      {/* export Excel button */}
       <Button
         variant="contained"
         css={toolbarButtonStyle}

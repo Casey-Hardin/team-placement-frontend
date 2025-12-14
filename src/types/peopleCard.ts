@@ -12,8 +12,18 @@ enum Collective {
   old = "I basically live at Collective.",
 }
 
+enum TeamPlacementStep {
+  unassigned = "Unassigned",
+  assignLeaders = "Assign Leaders",
+  firstPass = "First Pass",
+  applyControls = "Apply Controls",
+  secondPass = "Second Pass",
+  thirdPass = "Third Pass",
+  completeTeams = "Complete Teams",
+}
+
 interface Person {
-  [key: string]: boolean | number | string | string[]
+  [key: string]: boolean | number | string | TeamPlacementStep | string[]
   index: string
   order: number
   firstName: string
@@ -26,6 +36,7 @@ interface Person {
   preferredPeople: string[]
   leader: BooleanEnum
   team: string
+  teamPlacementStep: TeamPlacementStep
   room: string
   participant: BooleanEnum
   selected: boolean
@@ -40,4 +51,5 @@ export {
   Collective,
   type Person,
   type PersonTable,
+  TeamPlacementStep,
 }

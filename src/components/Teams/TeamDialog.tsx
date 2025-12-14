@@ -204,6 +204,7 @@ function TeamDialog({
   // people options
   // must be a participant
   // must not be a leader of another team
+  people.sort((a, b) => a.firstName.localeCompare(b.firstName));
   const leaderMenuItems = people.filter(person => (
     person.participant === BooleanEnum.yes
     && (
@@ -253,6 +254,7 @@ function TeamDialog({
               multiple
               value={teamOpen === null ? [""] : leadersOpen}
               onChange={(e) => onLeadersOpenChange(Array.isArray(e.target.value) ? e.target.value : [e.target.value])}
+              MenuProps={{ PaperProps: { sx: { maxHeight: 300 } } }}
             >
               {leaderMenuItems}
             </Select>

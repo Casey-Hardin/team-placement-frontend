@@ -350,6 +350,7 @@ function PersonDialog({
               label="Preferred People"
               value={personOpen === null ? [""] : personOpen.preferredPeople}
               onChange={(e) => handlePersonPropertyChange("preferredPeople", e.target.value)}
+              MenuProps={{ PaperProps: { sx: { maxHeight: 300 } } }}
             >
               {peopleMenuItems}
             </Select>
